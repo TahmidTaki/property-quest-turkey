@@ -6,6 +6,9 @@ import {
   DEMO_CLIENT,
   encodeSession,
   getSession,
+  createSession,
+  setSessionCookie,
+  clearSession,
   type DemoSession,
   type Role,
 } from "@/lib/auth/demo-session";
@@ -54,8 +57,11 @@ export async function demoLogin(_prev: unknown, formData: FormData) {
   const session: DemoSession = {
     ...DEMO_CLIENT,
     email,
+    name: "Client",
+    phone: "",
     role: canAgent ? "agent" : "client",
     canAgent,
+    createdAt: new Date().toISOString(),
   };
 
   await writeSession(session);
@@ -63,6 +69,49 @@ export async function demoLogin(_prev: unknown, formData: FormData) {
   // Honor a safe in-portal redirect target (set by middleware as ?next=).
   const target = next.startsWith("/portal") ? next : "/portal";
   redirect(target);
+}
+
+/**
+ * DEMO signup. Creates a new user account with full name and phone.
+ * Replace with the PMS NextAuth flow at integration time.
+ */
+export async function demoSignup(_prev: unknown, formData: FormData) {
+  const fullName = ((formData.get("fullName") as string) || "").trim();
+  const phone = ((formData.get("phone") as string) || "").trim();
+  const email = ((formData.get("email") as string) || "").trim();
+  const password = (formData.get("password") as string) || "";
+  const confirmPassword = (formData.get("confirmPassword") as string) || "";
+
+  // Validation
+  if (!fullName) {
+    return { ok: false, error: "Please enter your full name." };
+  }
+
+  if (!email || !email.includes("@")) {
+    return { ok: false, error: "Please enter a valid email address." };
+  }
+
+  if (!password || password.length < 6) {
+    return { ok: false, error: "Password must be at least 6 characters." };
+  }
+
+  if (password !== confirmPassword) {
+    return { ok: false, error: "Passwords do not match." };
+  }
+
+  const canAgent = isAgentEmail(email);
+  const session: DemoSession = {
+    ...DEMO_CLIENT,
+    email,
+    name: fullName,
+    phone: phone,
+    role: canAgent ? "agent" : "client",
+    canAgent,
+    createdAt: new Date().toISOString(),
+  };
+
+  await writeSession(session);
+  redirect("/portal");
 }
 
 /** Toggle client/agent view — only for sessions entitled to the agent role. */

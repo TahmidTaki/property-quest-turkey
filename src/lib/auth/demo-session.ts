@@ -20,13 +20,16 @@ export type Role = "client" | "agent";
 export interface DemoSession {
   email: string;
   name: string;
+  phone?: string;
   role: Role;
   /** Granted server-side at login only when email matches DEMO_AGENT_EMAIL. */
   canAgent: boolean;
+  /** User creation timestamp */
+  createdAt?: string;
 }
 
 /** The single sample client used across the portal demo. */
-export const DEMO_CLIENT: Omit<DemoSession, "canAgent"> = {
+export const DEMO_CLIENT: Omit<DemoSession, "canAgent" | "phone" | "createdAt"> = {
   email: "client@demo.pqt",
   name: "Ahmed Hassan",
   role: "client",
@@ -44,6 +47,36 @@ function sign(payload: string): string {
 export function encodeSession(s: DemoSession): string {
   const payload = Buffer.from(JSON.stringify(s), "utf8").toString("base64url");
   return `${payload}.${sign(payload)}`;
+}
+
+export async function createSession(
+  email: string,
+  name: string,
+  phone?: string,
+  role: Role = "client"
+): Promise<string> {
+  const canAgent = email === process.env.DEMO_AGENT_EMAIL;
+  const session: DemoSession = {
+    email,
+    name,
+    phone: phone || "",
+    role: canAgent ? "agent" : role,
+    canAgent,
+    createdAt: new Date().toISOString(),
+  };
+  return encodeSession(session);
+}
+
+export async function setSessionCookie(session: DemoSession): Promise<void> {
+  const store = await cookies();
+  const encoded = encodeSession(session);
+  store.set(SESSION_COOKIE, encoded, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 7, // 1 week
+    path: "/",
+  });
 }
 
 export async function getSession(): Promise<DemoSession | null> {
@@ -70,10 +103,22 @@ export async function getSession(): Promise<DemoSession | null> {
     const canAgent = parsed.canAgent === true;
     // Never honor an agent role the session isn't entitled to.
     const role: Role = canAgent && parsed.role === "agent" ? "agent" : "client";
-    return { email: parsed.email, name: parsed.name ?? "Client", role, canAgent };
+    return {
+      email: parsed.email,
+      name: parsed.name ?? "Client",
+      phone: parsed.phone ?? "",
+      role,
+      canAgent,
+      createdAt: parsed.createdAt,
+    };
   } catch {
     return null;
   }
+}
+
+export async function clearSession(): Promise<void> {
+  const store = await cookies();
+  store.delete(SESSION_COOKIE);
 }
 
 export { SESSION_COOKIE };
