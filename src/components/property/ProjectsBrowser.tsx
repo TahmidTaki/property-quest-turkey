@@ -11,20 +11,20 @@ import {
   Bed,
   DollarSign
 } from "lucide-react";
-import type { PublicProperty, ProjectStatus, PropertyType } from "@/lib/content/types";
+import type { PublicProperty, ProjectStatus } from "@/lib/content/types";
 import { PropertyCard } from "./PropertyCard";
 
-const PROPERTY_TYPE_OPTIONS: { value: PropertyType | "all"; label: string }[] = [
-  { value: "all", label: "All Types" },
-  { value: "apartment", label: "Apartment" },
-  { value: "villa", label: "Villa" },
-  { value: "penthouse", label: "Penthouse" },
-  { value: "duplex", label: "Duplex" },
-  { value: "triplex", label: "Triplex" },
-  { value: "bungalow", label: "Bungalow" },
-  { value: "commercial", label: "Commercial" },
-  { value: "hotel", label: "Hotel" },
-];
+// const PROPERTY_TYPE_OPTIONS: { value: PropertyType | "all"; label: string }[] = [
+//   { value: "all", label: "All Types" },
+//   { value: "apartment", label: "Apartment" },
+//   { value: "villa", label: "Villa" },
+//   { value: "penthouse", label: "Penthouse" },
+//   { value: "duplex", label: "Duplex" },
+//   { value: "triplex", label: "Triplex" },
+//   { value: "bungalow", label: "Bungalow" },
+//   { value: "commercial", label: "Commercial" },
+//   { value: "hotel", label: "Hotel" },
+// ];
 
 const BEDROOM_OPTIONS = [
   { value: "any", label: "Any" },
@@ -43,7 +43,7 @@ export function ProjectsBrowser({
 }) {
   const [city, setCity] = useState("all");
   const [district, setDistrict] = useState("all");
-  const [propertyType, setPropertyType] = useState<PropertyType | "all">("all");
+  // const [propertyType, setPropertyType] = useState<PropertyType | "all">("all");
   const [bedrooms, setBedrooms] = useState("any");
   const [searchQuery, setSearchQuery] = useState("");
   const [showPriceRange, setShowPriceRange] = useState(false);
@@ -62,7 +62,7 @@ export function ProjectsBrowser({
       }
       if (city !== "all" && p.city !== city) return false;
       if (district !== "all" && p.district !== district) return false;
-      if (propertyType !== "all" && p.propertyType !== propertyType) return false;
+      // if (propertyType !== "all" && p.propertyType !== propertyType) return false;
       if (bedrooms !== "any") {
         const minBeds = parseInt(bedrooms);
         const maxBeds = Math.max(...p.unitTypes.map(u => u.bedrooms));
@@ -72,7 +72,7 @@ export function ProjectsBrowser({
       if (maxPrice > 0 && p.priceUsdFrom > maxPrice) return false;
       return true;
     });
-  }, [properties, city, district, propertyType, bedrooms, minPrice, maxPrice, searchQuery]);
+  }, [properties, city, district, bedrooms, minPrice, maxPrice, searchQuery]);
 
   const priceRangeLabel = useMemo(() => {
     if (minPrice === 0 && maxPrice === 0) return "Any Price";
@@ -134,7 +134,7 @@ export function ProjectsBrowser({
           </div>
 
           {/* PROPERTY TYPE */}
-          <div className="block">
+          {/* <div className="block">
             <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted">
               <Building2 size={14} className="text-red" /> Property Type
             </span>
@@ -149,7 +149,7 @@ export function ProjectsBrowser({
                 </option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           {/* BEDROOMS */}
           <div className="block">
