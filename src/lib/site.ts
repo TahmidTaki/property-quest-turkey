@@ -23,10 +23,16 @@ export const company = {
 export const mainNav = [
   { href: "/projects", label: "Projects" },
   { href: "/market-pulse", label: "Market Pulse" },
+  { href: "/investor-guide", label: "Investor Guide" },
+  { href: "/citizenship", label: "Citizenship" },
+] as const;
+
+export const resourceNav = [
   { href: "/blog", label: "Blog" },
   { href: "/media", label: "Media" },
-  { label: "Investor Guide", href: "/investor-guide" },
-  { href: "/citizenship", label: "Citizenship" },
+] as const;
+
+export const companyNav = [
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
