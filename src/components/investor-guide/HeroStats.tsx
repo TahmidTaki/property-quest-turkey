@@ -6,17 +6,28 @@ export function HeroStats() {
       {investorStats.map((item) => (
         <div
           key={item.label}
-          className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur"
+          className="
+            rounded-2xl
+            border border-line
+            bg-gradient-to-b from-white to-slate-50
+            p-6
+            text-center
+            shadow-xl
+            backdrop-blur
+            dark:border-white/10
+            dark:from-white/10
+            dark:to-white/[0.03]
+          "
         >
           <div className="text-3xl font-bold text-gold">
             {item.value}
           </div>
 
-          <div className="mt-2 text-sm font-semibold text-white">
+          <div className="mt-2 text-sm font-semibold text-ink dark:text-white">
             {item.label}
           </div>
 
-          <p className="mt-2 text-xs leading-6 text-white/70">
+          <p className="mt-2 text-xs leading-6 text-slate-600 dark:text-white/70">
             {item.description}
           </p>
         </div>

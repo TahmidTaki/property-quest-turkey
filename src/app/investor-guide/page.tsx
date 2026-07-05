@@ -29,11 +29,11 @@ export default function InvestorGuidePage() {
     subtitle="A complete handbook for international investors exploring property ownership, residency, and citizenship opportunities in Turkey."
   />
 
-  <section className="-mt-8 bg-gradient-to-br from-navy to-ink pb-20">
+    <section className="relative -mt-20 pb-10 z-10">
     <div className="container-x">
-      <HeroStats />
+        <HeroStats />
     </div>
-  </section>
+    </section>
 
   <WhyTurkey />
   <BuyingProcess />
