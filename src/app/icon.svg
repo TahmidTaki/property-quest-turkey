@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#013684"/>
+  <text x="32" y="42" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-weight="700" fill="#D4A84B" text-anchor="middle">PQ</text>
+  <rect x="14" y="50" width="36" height="3" rx="1.5" fill="#E20A17"/>
+</svg>
