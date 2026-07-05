@@ -25,6 +25,7 @@ export const mainNav = [
   { href: "/market-pulse", label: "Market Pulse" },
   { href: "/blog", label: "Blog" },
   { href: "/media", label: "Media" },
+  { label: "Investor Guide", href: "/investor-guide" },
   { href: "/citizenship", label: "Citizenship" },
   { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
