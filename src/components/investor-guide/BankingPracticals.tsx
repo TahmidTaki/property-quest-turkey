@@ -31,8 +31,8 @@ export function BankingPracticals() {
         ))}
       </div>
 
-      <div className="mt-10 rounded-xl border border-gold/20 bg-gold-soft p-5">
-        <p className="text-sm text-ink">
+      <div className="mt-10 rounded-xl border border-gold/20 bg-gold-soft p-5 dark:border-gold/15 dark:bg-navy/30">
+      <p className="text-sm text-ink">
           Foreign investors can manage almost every aspect
           of ownership remotely through Power of Attorney
           and professional property management services.

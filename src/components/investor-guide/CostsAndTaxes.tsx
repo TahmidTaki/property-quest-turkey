@@ -33,9 +33,9 @@ export function CostsAndTaxes() {
         ))}
       </div>
 
-      <div className="mt-10 rounded-xl border border-gold/20 bg-gold-soft p-5">
-        <p className="text-sm text-ink">
-          <strong>Tip:</strong> Always budget an additional
+      <div className="mt-10 rounded-xl border border-gold/20 bg-gold-soft p-5 dark:border-gold/15 dark:bg-navy/30">
+        <p className="text-sm text-ink dark:text-dark-text">
+          <strong className="text-ink dark:text-dark-text">Tip:</strong> Always budget an additional
           5–7% beyond the purchase price to comfortably cover
           all taxes, legal services, and administrative costs.
         </p>

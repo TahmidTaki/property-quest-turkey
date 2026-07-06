@@ -46,7 +46,7 @@ const slides = [
     id: 3,
     title: (
       <>
-        Expert Guidance{" "}
+        Expert Guidance{" "} <br></br>
         <span className="text-gold">at Every Step</span>
       </>
     ),
@@ -68,7 +68,7 @@ export default function HeroSlider() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 2000);
+    }, 3500);
 
     return () => clearInterval(interval);
   }, []);
@@ -80,8 +80,8 @@ export default function HeroSlider() {
   const slide = slides[currentSlide];
 
   return (
-    <section className="relative overflow-hidden px-5 py-24 text-white sm:px-8 sm:py-28 min-h-[600px] flex items-center">
-      {/* Background Images with Crossfade - FIXED HEIGHT */}
+    <section className="relative overflow-hidden px-5 py-16 text-white sm:px-8 sm:py-28 min-h-[550px] sm:min-h-[650px] flex items-center">
+      {/* Background Images with Crossfade */}
       <div className="absolute inset-0 -z-10">
         {slides.map((s, index) => (
           <div
@@ -90,69 +90,68 @@ export default function HeroSlider() {
               index === currentSlide ? "opacity-100" : "opacity-0"
             }`}
           >
-            {/* Image with object-fit cover */}
             <img
               src={s.image}
               alt={s.subtitle}
               className="w-full h-full object-cover"
             />
-            {/* Dark overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-navy/90 to-ink/90" />
           </div>
         ))}
       </div>
 
-      {/* Decorative elements */}
-      <div className="pointer-events-none absolute -right-12 -top-12 h-72 w-72 rounded-full bg-gold/10" />
-      <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-red/10" />
-
       <div className="container-x relative w-full">
-        <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-gold transition-all duration-500">
-          {slide.subtitle}
-        </p>
+        <div className="min-h-[280px] sm:min-h-[320px] flex flex-col justify-center">
+          <p className="mb-3 sm:mb-4 text-xs font-bold uppercase tracking-[0.2em] text-gold transition-all duration-500 h-4 sm:h-5">
+            {slide.subtitle}
+          </p>
 
-        <h1 className="max-w-3xl text-4xl leading-tight sm:text-5xl transition-all duration-500">
-          {slide.title}
-        </h1>
+          <h1 className="max-w-3xl text-2xl sm:text-4xl lg:text-5xl leading-tight transition-all duration-500 min-h-[56px] sm:min-h-[60px] lg:min-h-[80px]">
+            {slide.title}
+          </h1>
 
-        <p className="mt-5 max-w-xl text-lg text-white/85 transition-all duration-500">
-          {slide.description}
-        </p>
+          <p className="mt-3 sm:mt-5 max-w-xl text-base sm:text-lg text-white/85 transition-all duration-500 min-h-[40px] sm:min-h-[28px] line-clamp-3 sm:line-clamp-none">
+            {slide.description}
+          </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <LinkButton href="/projects" variant="gold">
-            Browse projects <ArrowRight size={16} />
-          </LinkButton>
-          <LinkButton
-            href="/contact"
-            variant="outline"
-            className="!border-white !text-white hover:!bg-white hover:!text-navy"
-          >
-            Book a free consultation
-          </LinkButton>
+          {/* Buttons restored to original size */}
+          <div className="mt-5 sm:mt-8 flex flex-wrap gap-3">
+            <LinkButton href="/projects" variant="gold">
+              Browse projects <ArrowRight size={16} />
+            </LinkButton>
+            <LinkButton
+              href="/contact"
+              variant="outline"
+              className="!border-white !text-white hover:!bg-white hover:!text-navy"
+            >
+              Book a free consultation
+            </LinkButton>
+          </div>
+
+          <dl className="mt-10 sm:mt-14 grid grid-cols-2 gap-4 sm:gap-6 max-w-2xl sm:grid-cols-4 min-h-[60px] sm:min-h-[80px]">
+            {slide.stats.map(([stat, label]) => (
+              <div key={label}>
+                <dt className="tabular text-xl sm:text-2xl font-extrabold text-gold">
+                  {stat}
+                </dt>
+                <dd className="mt-0.5 sm:mt-1 text-[10px] sm:text-xs text-white/70 leading-tight">
+                  {label}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
-        <dl className="mt-14 grid max-w-2xl grid-cols-2 gap-6 sm:grid-cols-4">
-          {slide.stats.map(([stat, label]) => (
-            <div key={label}>
-              <dt className="tabular text-2xl font-extrabold text-gold">
-                {stat}
-              </dt>
-              <dd className="mt-1 text-xs text-white/70">{label}</dd>
-            </div>
-          ))}
-        </dl>
-
         {/* Slide Dots */}
-        <div className="mt-10 flex justify-center gap-2">
+        <div className="mt-6 sm:mt-10 flex justify-center gap-1.5 sm:gap-2">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
               className={`transition-all duration-300 rounded-full ${
                 index === currentSlide
-                  ? "w-8 bg-gold h-2.5"
-                  : "w-2.5 h-2.5 bg-white/30 hover:bg-white/50"
+                  ? "w-6 sm:w-8 bg-gold h-2 sm:h-2.5"
+                  : "w-2 sm:w-2.5 h-2 sm:h-2.5 bg-white/30 hover:bg-white/50"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

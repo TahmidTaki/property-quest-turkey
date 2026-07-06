@@ -105,7 +105,6 @@
   }
 }
 
-/* ✅ FIXED: Dark mode overrides using direct CSS values */
 .dark .text-muted {
   color: #8a8a9a;
 }
@@ -175,4 +174,8 @@
 .dark .badge-gold {
   background-color: rgba(1, 54, 132, 0.3);
   color: #fbbf24;
+}
+
+.dark .btn-gold {
+  color: #000000;
 }

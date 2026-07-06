@@ -22,7 +22,7 @@ import {
 } from "@/lib/format";
 import { useReducedMotion } from "@/components/useReducedMotion";
 
-const ROTATE_MS = 1800;
+const ROTATE_MS = 3000;
 
 /** Auto-rotating featured-property spotlight. */
 export function FeaturedSpotlight({

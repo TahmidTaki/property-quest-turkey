@@ -47,14 +47,14 @@ export function BuyingProcess() {
         ))}
       </div>
 
-      <div className="mx-auto mt-10 max-w-5xl rounded-xl border border-gold/30 bg-gold-soft p-6">
-        <p className="text-sm leading-7 text-ink">
-          <strong>💡 Can I buy remotely?</strong> Yes. You may grant
-          Power of Attorney (PoA) through a Turkish consulate,
-          allowing your lawyer to complete the entire purchase on
-          your behalf.
-        </p>
-      </div>
+      <div className="mx-auto mt-10 max-w-5xl rounded-xl border border-gold/30 bg-gold-soft p-6 dark:border-gold/20 dark:bg-navy/20">
+  <p className="text-sm leading-7 text-ink dark:text-dark-text">
+    <strong className="text-ink dark:text-dark-text">💡 Can I buy remotely?</strong> Yes. You may grant
+    Power of Attorney (PoA) through a Turkish consulate,
+    allowing your lawyer to complete the entire purchase on
+    your behalf.
+  </p>
+</div>
     </Section>
   );
 }
