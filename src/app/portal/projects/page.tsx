@@ -1,10 +1,10 @@
 import { ProjectsBrowser } from "@/components/property/ProjectsBrowser";
-import { getProperties, getDistricts } from "@/lib/content/properties";
+import { listProperties, getDistricts } from "@/lib/pms/client";
 import { PortalTitle } from "@/components/portal/ui";
 
 export default async function PortalProjectsPage() {
-  const [properties, districts] = await Promise.all([
-    getProperties(),
+  const [propertiesResult, districts] = await Promise.all([
+    listProperties({ limit: 50 }),
     getDistricts(),
   ]);
 
@@ -14,7 +14,7 @@ export default async function PortalProjectsPage() {
         title="Browse projects"
         subtitle="Explore new citizenship-eligible opportunities to add to your portfolio."
       />
-      <ProjectsBrowser properties={properties} districts={districts} />
+      <ProjectsBrowser properties={propertiesResult.items} districts={districts} />
     </>
   );
 }

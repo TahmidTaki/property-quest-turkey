@@ -16,32 +16,39 @@ import {
 import { FeaturedSpotlight } from "@/components/site/FeaturedSpotlight";
 import { LivePulseBand } from "@/components/site/LivePulseBand";
 import { BlogTeaser, MediaTeaser } from "@/components/site/MediaSections";
-import { getFeaturedProperties } from "@/lib/content/properties";
+import { listProperties } from "@/lib/pms/client";
+import type { PmsListItem } from "@/lib/pms/client";
 import { getArticles, getVideos, getPodcasts } from "@/lib/content/insights";
 import { getPulseItems, getTicker } from "@/lib/content/marketPulse";
-import { company } from "@/lib/site";
 import HeroSlider from "@/components/site/HeroSlider";
 
 export default async function HomePage() {
-  const [featured, articles, videos, podcasts, pulse, ticker] =
-    await Promise.all([
-      getFeaturedProperties(),
-      getArticles(),
-      getVideos(),
-      getPodcasts(),
-      getPulseItems(),
-      getTicker(),
-    ]);
+  let featuredProperties: PmsListItem[] = [];
+  let error = false;
+
+  try {
+    const result = await listProperties({
+      sort: "newest",
+      limit: 6,
+    });
+    featuredProperties = result.items;
+  } catch {
+    error = true;
+  }
+
+  const [articles, videos, podcasts, pulse, ticker] = await Promise.all([
+    getArticles(),
+    getVideos(),
+    getPodcasts(),
+    getPulseItems(),
+    getTicker(),
+  ]);
 
   return (
     <>
-      {/* HERO */}
       <HeroSlider />
-
-      {/* LIVE MARKET PULSE BAND */}
       <LivePulseBand items={pulse} ticker={ticker} />
 
-      {/* WHY PQT */}
       <Section tone="default">
         <SectionHead
           label="Why Property Quest Turkey"
@@ -73,34 +80,35 @@ export default async function HomePage() {
           ].map((f) => (
             <div
               key={f.title}
-              className="card p-7 transition hover:-translate-y-1 hover:border-gold hover:shadow-navy"
+              className="card p-7 transition hover:-translate-y-1 hover:border-gold hover:shadow-navy dark:bg-dark-card dark:border-dark-border dark:hover:border-yellow-400"
             >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gold-soft">
-                <f.icon className="text-navy" size={22} />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-gold-soft dark:bg-yellow-400/20">
+                <f.icon className="text-navy dark:text-blue-300" size={22} />
               </div>
-              <h3 className="text-lg text-navy">{f.title}</h3>
-              <p className="mt-2 text-sm text-muted">{f.body}</p>
+              <h3 className="text-lg text-navy dark:text-blue-300">{f.title}</h3>
+              <p className="mt-2 text-sm text-muted dark:text-dark-muted">{f.body}</p>
             </div>
           ))}
         </div>
       </Section>
 
-      {/* PQT INTELLIGENCE SHOWCASE */}
       <IntelligenceShowcase />
+      <FeaturedSpotlight properties={featuredProperties} />
 
-      {/* FEATURED PROPERTY SPOTLIGHT (rotating) */}
-      <FeaturedSpotlight properties={featured} />
-
-      {/* FEATURED PROJECTS */}
       <Section tone="white">
         <SectionHead
           label="Featured projects"
           title="Citizenship-eligible homes in Istanbul"
           lede="A selection from our portfolio. Every PQT listing shows the same trusted details our clients see in their private portal."
         />
+        {error && (
+          <p className="mb-4 text-center text-sm text-yellow-600 dark:text-yellow-400">
+            Unable to load featured properties. Please try again later.
+          </p>
+        )}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((p) => (
-            <PropertyCard key={p.id} p={p} />
+          {featuredProperties.map((p) => (
+            <PropertyCard key={p.id} property={p} />
           ))}
         </div>
         <div className="mt-10 text-center">
@@ -110,16 +118,10 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      {/* THE PQT DIFFERENCE */}
       <PqtDifference />
-
-      {/* BLOG — articles, separate section */}
       <BlogTeaser articles={articles} />
-
-      {/* MEDIA — videos & podcasts together */}
       <MediaTeaser videos={videos} podcasts={podcasts} />
 
-      {/* PROCESS */}
       <Section tone="ivory">
         <SectionHead
           label="How it works"
@@ -133,21 +135,20 @@ export default async function HomePage() {
             ["04", "Citizenship", "We file and track your application through to passports."],
           ].map(([num, title, body]) => (
             <div key={num} className="relative">
-              <span className="font-serif text-4xl font-bold text-gold/60">
+              <span className="font-serif text-4xl font-bold text-gold/60 dark:text-yellow-400/60">
                 {num}
               </span>
-              <h3 className="mt-2 text-lg text-navy">{title}</h3>
-              <p className="mt-1.5 text-sm text-muted">{body}</p>
+              <h3 className="mt-2 text-lg text-navy dark:text-blue-300">{title}</h3>
+              <p className="mt-1.5 text-sm text-muted dark:text-dark-muted">{body}</p>
             </div>
           ))}
         </div>
       </Section>
 
-      {/* CITIZENSHIP CTA */}
       <Section tone="navy">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-gold">
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-gold dark:text-yellow-400">
               Turkish citizenship by investment
             </p>
             <h2 className="text-3xl text-white sm:text-4xl">
@@ -161,7 +162,7 @@ export default async function HomePage() {
                 "Retain your existing nationality (dual citizenship allowed)",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2.5 text-white/85">
-                  <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-gold" />
+                  <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-gold dark:text-yellow-400" />
                   <span className="text-sm">{item}</span>
                 </li>
               ))}
@@ -175,7 +176,7 @@ export default async function HomePage() {
           <div className="rounded-2xl bg-white/5 p-8 ring-1 ring-white/10">
             <h3 className="text-xl text-white">Free eligibility check</h3>
             <p className="mt-2 text-sm text-white/70">
-              Tell us your budget and goals. We&apos;ll send a tailored shortlist
+              Tell us your budget and goals. We will send a tailored shortlist
               and a clear citizenship timeline — no obligation.
             </p>
             <Link

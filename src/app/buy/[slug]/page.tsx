@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getProperties, getPropertyBySlug } from "@/lib/content/properties";
+import { getProperty, listProperties } from "@/lib/pms/client";
 import { BuyFlow } from "@/components/buy/BuyFlow";
 
 export async function generateStaticParams() {
-  const props = await getProperties();
-  return props.map((p) => ({ slug: p.slug }));
+  try {
+    const result = await listProperties({ limit: 50 });
+    return result.items.map((p) => ({ slug: p.pqt_code }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
@@ -16,8 +20,15 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const p = await getPropertyBySlug(slug);
-  return { title: p ? `Reserve · ${p.title}` : "Reserve" };
+  try {
+    const p = await getProperty(slug);
+    return { 
+      title: p ? `Reserve · ${p.listing_title}` : "Reserve",
+      description: p?.description_short || "Reserve your unit",
+    };
+  } catch {
+    return { title: "Reserve" };
+  }
 }
 
 export default async function BuyPage({
@@ -29,17 +40,27 @@ export default async function BuyPage({
 }) {
   const { slug } = await params;
   const { unit } = await searchParams;
-  const property = await getPropertyBySlug(slug);
+  
+  let property;
+  let error = false;
+
+  try {
+    property = await getProperty(slug);
+  } catch {
+    error = true;
+    notFound();
+  }
+
   if (!property) notFound();
 
   return (
-    <div className="bg-canvas py-10">
+    <div className="bg-canvas py-10 dark:bg-dark-bg">
       <div className="container-x max-w-3xl">
         <Link
-          href={`/projects/${property.slug}`}
-          className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-navy hover:underline"
+          href={`/projects/${property.pqt_code}`}
+          className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-navy hover:underline dark:text-blue-300"
         >
-          <ArrowLeft size={15} /> Back to {property.title}
+          <ArrowLeft size={15} /> Back to {property.listing_title}
         </Link>
         <BuyFlow property={property} initialUnit={unit} />
       </div>

@@ -10,7 +10,7 @@ import {
   Mail,
   CircleCheck,
 } from "lucide-react";
-import type { PublicProperty } from "@/lib/content/types";
+import type { PmsDetail } from "@/lib/pms/client";
 import { formatUsd } from "@/lib/format";
 import {
   submitReservation,
@@ -19,7 +19,7 @@ import {
 import { company } from "@/lib/site";
 
 const STEPS = ["Select unit", "Your offer", "Reserve", "Done"];
-const DEPOSIT_RATE = 0.05; // indicative 5% reservation deposit
+const DEPOSIT_RATE = 0.05;
 
 const initialState: ReservationState = { ok: false };
 
@@ -27,12 +27,16 @@ export function BuyFlow({
   property,
   initialUnit,
 }: {
-  property: PublicProperty;
+  property: PmsDetail;
   initialUnit?: string;
 }) {
   const [step, setStep] = useState(0);
+  
+  // Get unit types from property.units
+  const unitTypes = property.units || [];
+  
   const [unitLabel, setUnitLabel] = useState(
-    initialUnit ?? property.unitTypes[0]?.label ?? "",
+    initialUnit ?? unitTypes[0]?.type ?? "",
   );
   const [agreed, setAgreed] = useState(false);
   const [state, formAction, pending] = useActionState(
@@ -40,16 +44,26 @@ export function BuyFlow({
     initialState,
   );
 
-  const unit =
-    property.unitTypes.find((u) => u.label === unitLabel) ??
-    property.unitTypes[0];
-  const deposit = Math.round(unit.priceUsdFrom * DEPOSIT_RATE);
+  const unit = unitTypes.find((u) => u.type === unitLabel) ?? unitTypes[0];
+  const price = unit?.price_usd ? Number(unit.price_usd) : 0;
+  const deposit = Math.round(price * DEPOSIT_RATE);
 
-  // Server action succeeded → show the Done step.
   const currentStep = state.ok ? 3 : step;
 
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
+
+  // Helper function to get unit display label
+  const getUnitLabel = (u: typeof unit) => {
+    if (!u) return "Unit";
+    return u.type || "Unit";
+  };
+
+  // Helper function to get unit size
+  const getUnitSize = (u: typeof unit) => {
+    if (!u || !u.net_sqm) return "N/A";
+    return `${Number(u.net_sqm)} m²`;
+  };
 
   return (
     <div>
@@ -85,41 +99,47 @@ export function BuyFlow({
         <div className="card p-6">
           <h2 className="text-xl text-navy">Choose your unit type</h2>
           <p className="mt-1 text-sm text-muted">
-            {property.title} · {property.district}, Istanbul
+            {property.listing_title} · {property.district?.name || property.district_name || "Istanbul"}, Istanbul
           </p>
-          <div className="mt-5 space-y-3">
-            {property.unitTypes.map((u) => (
-              <label
-                key={u.label}
-                className={`flex cursor-pointer items-center justify-between rounded-lg border p-4 transition ${
-                  unitLabel === u.label
-                    ? "border-navy bg-navy/5 ring-1 ring-navy"
-                    : "border-line hover:border-gold"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="unitChoice"
-                    className="h-4 w-4 accent-navy"
-                    checked={unitLabel === u.label}
-                    onChange={() => setUnitLabel(u.label)}
-                  />
-                  <div>
-                    <p className="font-semibold text-ink">{u.label}</p>
-                    <p className="text-xs text-muted">
-                      {u.sizeSqm} m² · {u.bedrooms} bed · {u.available} available
-                    </p>
+          {unitTypes.length === 0 ? (
+            <div className="mt-5 text-sm text-muted">
+              No unit types available. Please contact us for more information.
+            </div>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {unitTypes.map((u) => (
+                <label
+                  key={u.type}
+                  className={`flex cursor-pointer items-center justify-between rounded-lg border p-4 transition ${
+                    unitLabel === u.type
+                      ? "border-navy bg-navy/5 ring-1 ring-navy"
+                      : "border-line hover:border-gold"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="unitChoice"
+                      className="h-4 w-4 accent-navy"
+                      checked={unitLabel === u.type}
+                      onChange={() => setUnitLabel(u.type)}
+                    />
+                    <div>
+                      <p className="font-semibold text-ink">{u.type}</p>
+                      <p className="text-xs text-muted">
+                        {u.net_sqm ? `${Number(u.net_sqm)} m²` : "N/A"} · {u.bedrooms} bed · {u.available_count} available
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <p className="tabular font-bold text-red">
-                  {formatUsd(u.priceUsdFrom)}
-                </p>
-              </label>
-            ))}
-          </div>
+                  <p className="tabular font-bold text-red">
+                    {u.price_usd ? formatUsd(Number(u.price_usd)) : "Contact us"}
+                  </p>
+                </label>
+              ))}
+            </div>
+          )}
           <div className="mt-6 flex justify-end">
-            <button onClick={next} className="btn btn-primary">
+            <button onClick={next} className="btn btn-primary" disabled={unitTypes.length === 0}>
               Continue <ArrowRight size={16} />
             </button>
           </div>
@@ -135,16 +155,16 @@ export function BuyFlow({
             terms before anything is binding.
           </p>
           <dl className="mt-5 divide-y divide-line text-sm">
-            <Row label="Project" value={property.title} />
-            <Row label="Unit type" value={`${unit.label} · ${unit.sizeSqm} m²`} />
-            <Row label="Unit price (from)" value={formatUsd(unit.priceUsdFrom)} />
+            <Row label="Project" value={property.listing_title} />
+            <Row label="Unit type" value={`${getUnitLabel(unit)} · ${getUnitSize(unit)}`} />
+            <Row label="Unit price (from)" value={unit?.price_usd ? formatUsd(Number(unit.price_usd)) : "Contact us"} />
             <Row
               label="Indicative reservation deposit (5%)"
-              value={formatUsd(deposit)}
+              value={deposit > 0 ? formatUsd(deposit) : "Contact us"}
             />
             <Row
               label="Citizenship eligible"
-              value={property.citizenship === "eligible" ? "Yes" : "Under review"}
+              value={property.cbi_eligible ? "Yes" : "Under review"}
             />
           </dl>
           <div className="mt-6 flex justify-between">
@@ -158,7 +178,7 @@ export function BuyFlow({
         </div>
       )}
 
-      {/* STEP 2 — reservation request (contact details + terms + submit) */}
+      {/* STEP 2 — reservation request */}
       {currentStep === 2 && (
         <form action={formAction} className="card p-6">
           <h2 className="text-xl text-navy">Reservation request</h2>
@@ -167,13 +187,12 @@ export function BuyFlow({
             prepare your reservation agreement — no payment is taken online.
           </p>
 
-          <input type="hidden" name="project" value={property.title} />
+          <input type="hidden" name="project" value={property.listing_title} />
           <input
             type="hidden"
             name="unit"
-            value={`${unit.label} · from ${formatUsd(unit.priceUsdFrom)}`}
+            value={`${getUnitLabel(unit)} · from ${unit?.price_usd ? formatUsd(Number(unit.price_usd)) : "Contact us"}`}
           />
-          {/* Honeypot */}
           <input
             type="text"
             name="website"
@@ -222,11 +241,11 @@ export function BuyFlow({
           <div className="mt-5 max-h-44 overflow-y-auto rounded-lg border border-line bg-canvas p-4 text-xs text-ink/75">
             <p className="font-semibold">Reservation terms (summary)</p>
             <p className="mt-2">
-              This request expresses your interest in {unit.label} at{" "}
-              {property.title} from {formatUsd(unit.priceUsdFrom)}. It is not a
+              This request expresses your interest in {getUnitLabel(unit)} at{" "}
+              {property.listing_title} from {unit?.price_usd ? formatUsd(Number(unit.price_usd)) : "Contact us"}. It is not a
               binding contract and no payment is due now. After PQT confirms
               availability, a refundable reservation deposit of approximately{" "}
-              {formatUsd(deposit)} holds the unit while contracts are prepared
+              {deposit > 0 ? formatUsd(deposit) : "TBC"} holds the unit while contracts are prepared
               and reviewed by your legal advisor. Citizenship eligibility is
               subject to official valuation and government approval.
             </p>
@@ -255,7 +274,7 @@ export function BuyFlow({
               {state.fallback && (
                 <a
                   href={`mailto:${company.email}?subject=${encodeURIComponent(
-                    `Reservation request: ${property.title} — ${unit.label}`,
+                    `Reservation request: ${property.listing_title} — ${getUnitLabel(unit)}`,
                   )}`}
                   className="btn btn-navy mt-3 w-full"
                 >
@@ -271,7 +290,7 @@ export function BuyFlow({
             </button>
             <button
               type="submit"
-              disabled={!agreed || pending}
+              disabled={!agreed || pending || unitTypes.length === 0}
               className="btn btn-primary disabled:opacity-50"
             >
               {pending ? (
@@ -294,8 +313,8 @@ export function BuyFlow({
           <CircleCheck className="mx-auto text-ok" size={52} />
           <h2 className="mt-4 text-2xl text-navy">Request received</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-muted">
-            Thank you — your reservation request for {unit.label} at{" "}
-            {property.title} is with our team. A PQT advisor will contact you
+            Thank you — your reservation request for {getUnitLabel(unit)} at{" "}
+            {property.listing_title} is with our team. A PQT advisor will contact you
             within one business day to confirm availability and next steps.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">

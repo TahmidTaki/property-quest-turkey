@@ -1,15 +1,22 @@
 import type { MetadataRoute } from "next";
-import { getProperties } from "@/lib/content/properties";
+import { listProperties } from "@/lib/pms/client";
+import type { PmsListItem } from "@/lib/pms/client";
 import { getArticles } from "@/lib/content/insights";
 
-/** Ready for launch — currently moot while robots.ts blocks crawling. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://pqt-website.vercel.app";
-  const [properties, articles] = await Promise.all([
-    getProperties(),
-    getArticles(),
-  ]);
+  
+  let properties: PmsListItem[] = [];
+  
+  try {
+    const result = await listProperties({ limit: 50 });
+    properties = result.items;
+  } catch {
+    // If API fails, sitemap still works with static routes
+  }
+
+  const articles = await getArticles();
 
   const staticRoutes = [
     "",
@@ -28,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticRoutes,
-    ...properties.map((p) => ({ url: `${base}/projects/${p.slug}` })),
+    ...properties.map((p) => ({ url: `${base}/projects/${p.pqt_code}` })),
     ...articles.map((a) => ({ url: `${base}/blog/${a.slug}` })),
   ];
 }

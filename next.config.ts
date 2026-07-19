@@ -14,9 +14,13 @@ const config: NextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "res.cloudinary.com" },
-      { protocol: "https", hostname: "images.unsplash.com" },
-    ],
+      {
+        protocol: "https",
+        hostname: "pms-api.propertyquestturkey.com",
+        port: "",
+        pathname: "/media/**",
+        search: "",
+      },],
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
