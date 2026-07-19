@@ -5,8 +5,6 @@ that presents projects, captures leads, runs a buy/reserve flow, and gives
 clients a private portal (dashboard, portfolio, citizenship tracker, purchases,
 aftersales, documents).
 
-Runs on **sample data** today; designed to connect to the PMS
-(`C:\dev\pqt-mgmt`) Postgres database later as the single source of truth.
 
 ## Run it
 
@@ -25,15 +23,7 @@ npm start          # serve the production build on :3003
 
 ## Try the portal (demo)
 
-1. Go to `/login`.
-2. Enter any email (no password — demo mode).
-3. Pick **Client** or **Agent** view, then log in.
-   - **Client** = what your customers see.
-   - **Agent** = internal view; reveals confidential fields hidden from clients.
-4. You land in `/portal`. Switch roles any time from the sidebar.
 
-Submitted leads (contact / enquiry / reservation) are logged to the dev console
-and appended to `.dev-leads.log` at the project root.
 
 ## Structure
 
@@ -58,10 +48,6 @@ src/
 
 ## Going live — the two swaps
 
-1. **Data:** replace the getter bodies in `src/lib/content/properties.ts` and
-   `portfolio.ts` with Prisma reads against the PMS DB, projecting to the
-   `Public*` shapes (public-tagged columns only). Set `DATABASE_URL`.
-2. **Auth:** replace `src/lib/auth/demo-session.ts` + `src/app/actions/auth.ts`
-   with the PMS NextAuth v5 session. Call sites use only `getSession()`/role.
+
 
 See `DECISIONS.md` for the full rationale.

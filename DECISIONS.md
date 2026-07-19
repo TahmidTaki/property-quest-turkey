@@ -69,3 +69,45 @@ Any notable choice or deviation is recorded here: what, why, tradeoff.
 
 ### 14. Accessibility & platform hygiene
 **What:** prefers-reduced-motion respected everywhere; pause buttons on the live band, feed, and spotlight; aria-pressed/expanded states; duplicated ticker copy aria-hidden; nested <main> fixed; contrast bumped on dark surfaces; security headers (X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy); honeypot on forms; login honors ?next=; header reflects login state via a non-httpOnly hint cookie; Services restored to nav; portal sidebar compact on mobile; FAQ marker cross-browser; dead `portalUrl` export removed.
+
+---
+
+## 2026-07-19 — Current Status Update
+
+### 15. PMS API Integration (Live Data)
+**What:** Replaced hardcoded property data with real data from the PMS API (`https://pms-api.propertyquestturkey.com/api/v1/external`). All property pages (listing, detail, buy) now fetch live data server-side. API key stored in `PQT_PMS_API_KEY` environment variable. Created `src/lib/pms/client.ts` as the API client layer.
+**Why:** Real data required for production. User explicitly chose to remove hardcoded data and use API data directly.
+**Tradeoff:** Removed all hardcoded sample data (`src/lib/content/properties.ts` deleted). Some fields (bedroom summary) exist in list API but not detail API, so bedroom count is passed via URL parameter.
+
+### 16. Type System Aligned with API
+**What:** Updated types to match the PMS API response structure. `PublicProperty` type replaced with `PmsListItem` and `PmsDetail` from the API client.
+**Why:** Direct mapping to API ensures data integrity and simplifies maintenance. No mapper layer needed.
+**Tradeoff:** Components had to be updated to use new field names (`listing_title` instead of `title`, `pqt_code` instead of `slug`, etc.).
+
+### 17. Floor Plan and Gallery Lightbox
+**What:** Floor plan and gallery images on property detail page are clickable and open in a full-screen lightbox slider with navigation.
+**Why:** Improves user experience by allowing visitors to view property images in detail.
+**Tradeoff:** Additional client-side state management for the lightbox.
+
+### 18. Dark Mode Support
+**What:** Full dark mode implementation using `dark:` Tailwind classes and a `ThemeProvider` component with toggle. Uses `localStorage` for persistence and respects system preference on first visit.
+**Why:** User requested dark mode for better user experience.
+**Tradeoff:** Added dark variants for all color classes in `tailwind.config.ts` and `globals.css`.
+
+---
+
+## Pending Items for Production Launch
+
+| Item | Status | Action Required |
+|------|--------|-----------------|
+| **Authentication** | ❌ Not implemented | Replace demo auth with NextAuth v5 session |
+| **Email delivery** | ❌ Not configured | Set `RESEND_API_KEY` + `LEADS_TO_EMAIL` env vars |
+| **Login function** | ❌ Not implemented | No real login exists yet |
+| **Database** | ❌ Not connected | Connect to PMS Postgres DB for real data |
+| **Search engines** | ⚠️ Blocked | Remove noindex metadata and open robots.ts |
+| **Phone/WhatsApp** | ⚠️ Empty | Fill in real numbers in `src/lib/site.ts` |
+| **Legal pages** | ⚠️ Draft | Review by legal counsel |
+| **Real property images** | ⚠️ Gradients | Replace with Cloudinary images |
+| **PMS data integration** | ✅ Done | API client is working with real data |
+| **Dark mode** | ✅ Done | Fully implemented |
+| **Floor plan/gallery lightbox** | ✅ Done | Fully implemented |
