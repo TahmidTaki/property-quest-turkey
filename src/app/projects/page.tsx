@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ProjectsBrowser } from "@/components/property/ProjectsBrowser";
 import { listProperties, getDistricts } from "@/lib/pms/client";
 import type { PmsListItem } from "@/lib/pms/client";
+import type { FilterState } from "@/components/property/ProjectsBrowser";
 
 export const metadata: Metadata = {
   title: "Projects",
@@ -59,13 +60,37 @@ export default async function ProjectsPage() {
           properties={properties} 
           districts={districts}
           nextCursor={nextCursor}
-          onLoadMore={async (cursor) => {
+          onLoadMore={async (cursor: string, filters: FilterState) => {
             'use server';
-            const result = await listProperties({ 
+            const params: Record<string, string | number | boolean> = { 
               sort: "newest", 
-              limit: 24,
+              limit: 24, 
               cursor 
-            });
+            };
+            
+            if (filters.bedrooms && filters.bedrooms > 0) {
+              params.bedrooms_min = filters.bedrooms;
+            }
+            if (filters.minPrice && filters.minPrice > 0) {
+              params.price_min_usd = filters.minPrice;
+            }
+            if (filters.maxPrice && filters.maxPrice > 0) {
+              params.price_max_usd = filters.maxPrice;
+            }
+            if (filters.district && filters.district !== "all") {
+              params.district_id = filters.district;
+            }
+            if (filters.category && filters.category !== "all") {
+              params.category = filters.category;
+            }
+            if (filters.side && filters.side !== "all") {
+              params.side = filters.side;
+            }
+            if (filters.searchQuery) {
+              params.q = filters.searchQuery;
+            }
+            
+            const result = await listProperties(params);
             return result;
           }}
         />

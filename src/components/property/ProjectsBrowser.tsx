@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import {
   Search,
   SlidersHorizontal,
@@ -14,6 +14,16 @@ import {
 import type { PmsListItem } from "@/lib/pms/client";
 import { PropertyCard } from "./PropertyCard";
 
+export interface FilterState {
+  bedrooms: number;
+  minPrice: number;
+  maxPrice: number;
+  district: string;
+  category: string;
+  side: string;
+  searchQuery: string;
+}
+
 const PROPERTY_TYPE_OPTIONS = [
   { value: "all", label: "All Types" },
   { value: "residential", label: "Residential" },
@@ -24,10 +34,10 @@ const PROPERTY_TYPE_OPTIONS = [
 
 const BEDROOM_OPTIONS = [
   { value: "any", label: "Any" },
-  { value: "1", label: "1+" },
-  { value: "2", label: "2+" },
-  { value: "3", label: "3+" },
-  { value: "4", label: "4+" },
+  { value: "1", label: "1+1" },
+  { value: "2", label: "2+1" },
+  { value: "3", label: "3+1" },
+  { value: "4", label: "4+1" },
 ];
 
 const SIDE_OPTIONS = [
@@ -45,7 +55,7 @@ export function ProjectsBrowser({
   properties: PmsListItem[];
   districts: string[];
   nextCursor?: string | null;
-  onLoadMore?: (cursor: string) => Promise<{ items: PmsListItem[]; next_cursor: string | null }>;
+  onLoadMore?: (cursor: string, filters: FilterState) => Promise<{ items: PmsListItem[]; next_cursor: string | null }>;
 }) {
   const [city, setCity] = useState("all");
   const [district, setDistrict] = useState("all");
@@ -60,8 +70,30 @@ export function ProjectsBrowser({
   const [nextCursor, setNextCursor] = useState<string | null>(initialCursor || null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(!!initialCursor);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   const cities = ["Istanbul"];
+
+  // Reset everything when initial properties change 
+  useEffect(() => {
+    setAllProperties(properties);
+    setNextCursor(initialCursor || null);
+    setHasMore(!!initialCursor);
+    setInitialLoadComplete(true);
+  }, [properties, initialCursor]);
+
+  // Get current filter state
+  const getCurrentFilters = useCallback((): FilterState => {
+    return {
+      bedrooms: bedrooms !== "any" ? parseInt(bedrooms) : 0,
+      minPrice: minPrice > 0 ? minPrice : 0,
+      maxPrice: maxPrice > 0 ? maxPrice : 0,
+      district: district !== "all" ? district : "",
+      category: propertyType !== "all" ? propertyType : "",
+      side: side !== "all" ? side : "",
+      searchQuery: searchQuery || "",
+    };
+  }, [bedrooms, minPrice, maxPrice, district, propertyType, side, searchQuery]);
 
   const filtered = useMemo(() => {
     return allProperties.filter((p) => {
@@ -74,17 +106,20 @@ export function ProjectsBrowser({
       if (district !== "all" && p.district_name !== district) return false;
       if (propertyType !== "all" && p.category !== propertyType) return false;
       if (side !== "all" && p.side !== side) return false;
-      if (bedrooms !== "any") {
-      const minBeds = parseInt(bedrooms);
-      const maxBeds = p.bedrooms_summary?.split("-").map(Number).pop() || 0;
-      if (maxBeds < minBeds) return false;
+
+      if (bedrooms !== "any" && p.bedrooms_summary) {
+        const minBeds = parseInt(bedrooms);
+        const maxBeds = parseInt(p.bedrooms_summary);
+        if (isNaN(maxBeds)) return false;
+        if (maxBeds < minBeds) return false;
       }
+
       const price = parsePrice(p.starting_price_usd);
       if (minPrice > 0 && price < minPrice) return false;
       if (maxPrice > 0 && price > maxPrice) return false;
       return true;
     });
-  }, [allProperties, district, propertyType, side, minPrice, maxPrice, searchQuery]);
+  }, [allProperties, district, propertyType, side, bedrooms, minPrice, maxPrice, searchQuery]);
 
   const priceRangeLabel = useMemo(() => {
     if (minPrice === 0 && maxPrice === 0) return "Any Price";
@@ -107,7 +142,8 @@ export function ProjectsBrowser({
 
     setLoading(true);
     try {
-      const result = await onLoadMore(nextCursor);
+      const filters = getCurrentFilters();
+      const result = await onLoadMore(nextCursor, filters);
       setAllProperties((prev) => [...prev, ...result.items]);
       setNextCursor(result.next_cursor);
       setHasMore(!!result.next_cursor);
@@ -116,7 +152,7 @@ export function ProjectsBrowser({
     } finally {
       setLoading(false);
     }
-  }, [onLoadMore, nextCursor, loading]);
+  }, [onLoadMore, nextCursor, loading, getCurrentFilters]);
 
   return (
     <div>
@@ -307,6 +343,7 @@ export function ProjectsBrowser({
       <p className="mb-5 text-sm text-muted dark:text-dark-muted">
         Showing <span className="font-semibold text-ink dark:text-dark-text">{filtered.length}</span> projects
       </p>
+
       {filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-line bg-white p-12 text-center text-muted dark:border-dark-border dark:bg-dark-card dark:text-dark-muted">
           No projects match these filters. Try widening your search.
@@ -318,7 +355,7 @@ export function ProjectsBrowser({
               <PropertyCard key={p.id} property={p} />
             ))}
           </div>
-          
+
           {hasMore && (
             <div className="mt-8 text-center">
               <button
