@@ -8,13 +8,8 @@ export const company = {
   city: "Istanbul",
   email: "info@propertyquestturkey.com",
   salesEmail: "sales@propertyquestturkey.com",
-  /**
-   * Phone/WhatsApp are intentionally EMPTY until the real numbers are provided.
-   * Components hide phone/WhatsApp UI when these are blank — fill them in and
-   * everything (footer rows, contact card, WhatsApp buttons) reappears.
-   */
-  phone: "" as string,
-  whatsapp: "" as string,
+  phone: "+905063430709" as string,
+  whatsapp: "+905063430709" as string,
   address: "Levent, Istanbul, Türkiye",
   hours: "Mon–Sat, 09:00–19:00 (GMT+3)",
 } as const;

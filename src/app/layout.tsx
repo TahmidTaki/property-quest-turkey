@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { FloatingContact } from "@/components/site/FloatingContact";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -44,11 +45,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${fraunces.variable} ${manrope.variable}`}>
       <body className="flex min-h-screen flex-col bg-white text-ink dark:bg-dark-bg dark:text-dark-text">
-        
         <ThemeProvider>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <FloatingContact />
         </ThemeProvider>
       </body>
     </html>

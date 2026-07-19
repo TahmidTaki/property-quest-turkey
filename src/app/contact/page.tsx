@@ -41,61 +41,75 @@ export default async function ContactPage({
             <h3 className="text-lg text-navy">Contact details</h3>
             <ul className="mt-4 space-y-3 text-sm">
               <li className="flex items-center gap-2.5">
-                <MapPin size={16} className="text-gold" /> {company.address}
+                <MapPin size={16} className="text-gold shrink-0" />
+                <span>{company.address}</span>
               </li>
               <li className="flex items-center gap-2.5">
-                <Mail size={16} className="text-gold" />
-                <a href={`mailto:${company.email}`} className="hover:text-navy">
+                <Mail size={16} className="text-gold shrink-0" />
+                <a href={`mailto:${company.email}`} className="hover:text-navy dark:hover:text-blue-300">
                   {company.email}
                 </a>
               </li>
               {company.phone && (
                 <li className="flex items-center gap-2.5">
-                  <Phone size={16} className="text-gold" /> {company.phone}
+                  <Phone size={16} className="text-gold shrink-0" />
+                  <a
+                    href={`tel:${company.phone.replace(/[^0-9+]/g, "")}`}
+                    className="hover:text-navy dark:hover:text-blue-300"
+                  >
+                    {company.phone}
+                  </a>
                 </li>
               )}
               {company.whatsapp && (
                 <li className="flex items-center gap-2.5">
-                  <MessageCircle size={16} className="text-gold" />{" "}
-                  {company.whatsapp}
+                  <MessageCircle size={16} className="text-gold shrink-0" />
+                  <a
+                    href={`https://wa.me/${company.whatsapp.replace(/[^0-9]/g, "")}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-navy dark:hover:text-blue-300"
+                  >
+                    {company.whatsapp}
+                  </a>
                 </li>
               )}
               <li className="flex items-center gap-2.5">
-                <Clock size={16} className="text-gold" /> {company.hours}
+                <Clock size={16} className="text-gold shrink-0" />
+                <span>{company.hours}</span>
               </li>
             </ul>
           </div>
 
-          {company.whatsapp ? (
-            <div className="rounded-xl bg-navy p-6 text-white">
-              <h3 className="text-lg text-white">Prefer to talk now?</h3>
-              <p className="mt-2 text-sm text-white/80">
-                Message us on WhatsApp for the fastest response during business
-                hours.
-              </p>
-              <a
-                href={`https://wa.me/${company.whatsapp.replace(/[^0-9]/g, "")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-gold mt-4 w-full"
-              >
-                <MessageCircle size={16} /> Chat on WhatsApp
-              </a>
-            </div>
-          ) : (
-            <div className="rounded-xl bg-navy p-6 text-white">
-              <h3 className="text-lg text-white">Prefer email?</h3>
-              <p className="mt-2 text-sm text-white/80">
-                Write to us directly — we reply within one business day.
-              </p>
+          <div className="rounded-xl bg-navy p-6 text-white">
+            <h3 className="text-lg text-white">Get in touch</h3>
+            <div className="mt-4 space-y-3">
+              {company.whatsapp && (
+                <a
+                  href={`https://wa.me/${company.whatsapp.replace(/[^0-9]/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-95"
+                >
+                  <MessageCircle size={16} /> Chat on WhatsApp
+                </a>
+              )}
               <a
                 href={`mailto:${company.email}`}
-                className="btn btn-gold mt-4 w-full"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"
               >
-                <Mail size={16} /> {company.email}
+                <Mail size={16} /> Email us
               </a>
+              {company.phone && (
+                <a
+                  href={`tel:${company.phone.replace(/[^0-9+]/g, "")}`}
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/20"
+                >
+                  <Phone size={16} /> Call us
+                </a>
+              )}
             </div>
-          )}
+          </div>
         </aside>
       </div>
     </>
